@@ -7,11 +7,20 @@
         <h4 class="d-inline-block">Collections</h4>
         <button id="fetch-btn" type="button" class="btn btn-success">Fetch</button>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
             $("#fetch-btn").click(function () {
-                alert("This needs to be implemented. Good luck!");
+                $.ajax({
+                    url: "{% url 'dataset' %}",  
+                    type: "GET",
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function() {
+                        alert("An error occurred while fetching data.");
+                    }
+                });
             });
         });
     </script>
