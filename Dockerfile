@@ -9,7 +9,8 @@ ARG GROUP_ID
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN groupadd -g $GROUP_ID -o user && useradd -m -u $USER_ID -g user user
+RUN groupadd -g 1000 -o user && useradd -m -u 1000 -g user user
+RUN mkdir -p /src && chown -R user:user /src
 
 RUN apt-get update -y && \
     apt-get install -y && \
