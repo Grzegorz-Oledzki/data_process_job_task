@@ -1,51 +1,51 @@
-import csv
-import requests
-import os
-from django.views.generic import TemplateView, ListView
-from django.views import View
-from django.http import JsonResponse
+from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse, Http404
 from django.utils import timezone
+from django.views import View
 from core.models import Dataset
-from pathlib import Path
+from core.services import download_data_from_api, transform_data, get_data_from_csv
+import petl
 
-
-class IndexView(TemplateView):
-    template_name = "index.html"
+API_PEOPLE = "https://swapi.dev/api/people/"
 
 
 class DatasetView(View):
     def get(self, request):
-        today = timezone.now()
-        latest_metadata = Dataset.objects.order_by("-download_date").first()
+        time = timezone.localtime()
 
-        if latest_metadata and latest_metadata.download_date.date() == today:
-            return JsonResponse({"message": "Dataset is already up to date."})
+        if request.GET.get("fetch") == "true":
+            raw_data = download_data_from_api(API_PEOPLE)
+            transformed_table = transform_data(raw_data)
 
-        response = requests.get("https://swapi.dev/api/people/")
-        data = response.json().get("results", [])
-        filename = (
-            f"star_wars_characters_{timezone.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            data_dir = "data"
+            filename = f"star_wars_characters_{time.strftime('%Y%m%d_%H%M%S')}.csv"
+            file_path = f"{data_dir}/{filename}"
+
+            petl.tocsv(transformed_table, file_path)
+
+            with open(file_path, "rb") as f:
+                response = HttpResponse(f.read(), content_type="text/csv")
+                response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+            Dataset.objects.create(filename=filename, download_date=time)
+
+            return response
+
+        latest_files = Dataset.objects.order_by("-download_date")
+        return render(request, "index.html", {"files": latest_files})
+
+
+class DatasetDetailView(View):
+    def get(self, request, filename):
+        rows, columns = get_data_from_csv(filename)
+
+        return render(
+            request,
+            "dataset_detail.html",
+            {
+                "rows": rows,
+                "columns": columns,
+                "filename": filename,
+                "offset": 10,
+            },
         )
-        print(f"Current working directory: {os.getcwd()}")
-        file_path = Path("/opt/src/data") / filename
-        print(file_path)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, mode="w", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(data[0].keys())
-            for character in data:
-                writer.writerow(character.values())
-        Dataset.objects.create(filename=filename)
-
-        return JsonResponse({"message": "Dataset downloaded and saved successfully."})
-
-
-class DatasetListView(ListView):
-    model = Dataset
-    template_name = "dataset_list.html"  # Jeśli frontend wymaga szablonu
-    context_object_name = "datasets"
-
-    def render_to_response(self, context, **response_kwargs):
-        # Zwraca dane w formacie JSON
-        datasets = list(context["datasets"].values("filename", "download_date"))
-        return JsonResponse(datasets, safe=False)

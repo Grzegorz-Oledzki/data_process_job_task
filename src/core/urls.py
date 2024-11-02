@@ -1,9 +1,8 @@
 from django.urls import path
-
-from core.views import IndexView, DatasetView, DatasetListView
+from .views import DatasetView, DatasetDetailView
 
 urlpatterns = [
-    path("", IndexView.as_view(), name="index"),
-    path("download/", DatasetView.as_view(), name="dataset"),
-    path("datasets/", DatasetListView.as_view(), name="dataset_list"),
+    path("", DatasetView.as_view(), name="index"),  # Upewnij się, że nazwa to 'index'
+    path("dataset/", DatasetView.as_view(), name="dataset"),
+    path("dataset/<str:filename>/", DatasetDetailView.as_view(), name="dataset_detail"),
 ]
