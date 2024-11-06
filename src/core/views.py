@@ -1,16 +1,24 @@
+import os
+
+import petl
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, Http404
 from django.utils import timezone
 from django.views import View
+
 from core.models import Dataset
-from core.services import download_data_from_api, transform_data, get_data_from_csv
-import petl
+from core.services import (
+    count_occurrences,
+    download_data_from_api,
+    get_data_from_csv,
+    transform_data,
+)
 
 API_PEOPLE = "https://swapi.dev/api/people/"
 
 
 class DatasetView(View):
-    def get(self, request):
+    def get(self, request: HttpRequest) -> HttpResponse:
         time = timezone.localtime()
 
         if request.GET.get("fetch") == "true":
@@ -36,16 +44,29 @@ class DatasetView(View):
 
 
 class DatasetDetailView(View):
-    def get(self, request, filename):
+    def get(self, request: HttpRequest, filename: str) -> HttpResponse:
         rows, columns = get_data_from_csv(filename)
+        context = {
+            "filename": filename,
+            "rows": rows,
+            "columns": columns,
+        }
+        return render(request, "detail_table.html", context)
 
+
+class CountOccurrencesView(View):
+    def get(self, request: HttpRequest, filename: str) -> HttpResponse:
+        _, all_columns = get_data_from_csv(filename)
+        selected_columns: list[str] = request.GET.getlist("columns")
+        filepath = os.path.join("data", filename)
+        counts = count_occurrences(filepath, selected_columns)
         return render(
             request,
-            "dataset_detail.html",
+            "count_data.html",
             {
-                "rows": rows,
-                "columns": columns,
                 "filename": filename,
-                "offset": 10,
+                "count_data": counts,
+                "selected_columns": selected_columns,
+                "all_columns": all_columns,
             },
         )

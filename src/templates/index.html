@@ -1,100 +1,97 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Home{% endblock title %}
+{% block title %}
+  Home
+{% endblock %}
 {% block content %}
-
-<div class="col-sm-8">
+  <div class="col-sm-8">
     <h4>Collections</h4>
     <button id="fetch-btn" type="button" class="btn btn-success mt-3">Fetch</button>
 
     <ul id="file-list" class="file-list mt-3">
-        {% for file in files %}
-            <li class="file-item">
-                <a href="{% url 'dataset_detail' file.filename %}" class="file-link">
-                    <span class="file-date">{{ file.download_date|date:"Y-m-d H:i:s" }}</span>
-                    {{ file.filename }}  <!-- Display the filename -->
-                </a>
-            </li>
-        {% empty %}
-            <li class="file-item">No files downloaded yet.</li>
-        {% endfor %}
+      {% for file in files %}
+        <li class="file-item">
+          <a href="{% url 'dataset_detail' file.filename %}" class="file-link">
+            <span class="file-date">{{ file.download_date|date:'Y-m-d H:i:s' }}</span>
+            {{ file.filename }}
+          </a>
+        </li>
+      {% empty %}
+        <li class="file-item">No files downloaded yet.</li>
+      {% endfor %}
     </ul>
-</div>
+  </div>
 
-<style>
+  <style>
     .file-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        max-width: 300px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #f9f9f9;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      max-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
     }
-
+    
     .file-item {
-        padding: 10px;
-        border-bottom: 1px solid #ddd;
-        font-size: 14px;
-        color: #333;
-        text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+      color: #333;
+      text-align: left;
     }
-
+    
     .file-item:last-child {
-        border-bottom: none;
+      border-bottom: none;
     }
-
+    
     .file-date {
-        font-weight: bold;
-        color: #007bff;
+      font-weight: bold;
+      color: #007bff;
     }
-
+    
     .file-link {
-        text-decoration: none;  /* Remove underline */
-        color: inherit;  /* Use the current text color */
+      text-decoration: none; /* Remove underline */
+      color: inherit; /* Use the current text color */
     }
-
+    
     .file-link:hover {
-        color: #0056b3;  /* Change color on hover */
+      color: #0056b3; /* Change color on hover */
     }
-
+    
     #fetch-btn {
-        display: block;
-        margin-top: 15px;
+      display: block;
+      margin-top: 15px;
     }
-</style>
+  </style>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
     $(document).ready(function () {
-        $("#fetch-btn").click(function () {
-            // Configure AJAX request to fetch the CSV file
-            $.ajax({
-                url: "{% url 'dataset' %}?fetch=true",
-                type: "GET",
-                xhrFields: {
-                    responseType: 'blob'  // For file download
-                },
-                success: function(blob) {
-                    // Create download link for the file
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'star_wars_data.csv'; // Can be adjusted
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-
-                    // Refresh the page after downloading the file
-                    window.location.reload();
-                },
-                error: function() {
-                    alert("An error occurred while fetching data.");
-                }
-            });
-        });
-    });
-</script>
-
-{% endblock content %}
+      $('#fetch-btn').click(function () {
+        $.ajax({
+          url: "{% url 'dataset' %}?fetch=true",
+          type: 'GET',
+          xhrFields: {
+            responseType: 'blob'
+          },
+          success: function (blob) {
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'star_wars_data.csv'
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            window.URL.revokeObjectURL(url)
+    
+            window.location.reload()
+          },
+          error: function () {
+            alert('An error occurred while fetching data.')
+          }
+        })
+      })
+    })
+  </script>
+{% endblock %}
