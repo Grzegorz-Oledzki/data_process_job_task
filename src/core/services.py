@@ -40,13 +40,13 @@ class DataProcessor:
         filepath = Path("data") / filename
         if not filepath.exists():
             raise Http404("File not found.")
-        table = petl.fromcsv(str(filepath))  # Convert Path object to string for petl
+        table = petl.fromcsv(str(filepath))
         return list(petl.dicts(table)), table.fieldnames
 
     def count_occurrences(self, filepath: str, columns: list[str]) -> list[dict]:
         filepath = Path(filepath)
         if not filepath.exists():
             raise Http404("File not found.")
-        table = petl.fromcsv(str(filepath))  # Convert Path object to string for petl
+        table = petl.fromcsv(str(filepath))
         counts_table = petl.valuecounts(table, *columns)
         return [{"values": list(row[:-1]), "count": row[-1]} for row in counts_table]
