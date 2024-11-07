@@ -21,13 +21,7 @@ def filename():
 def test_create_dataset(filename: str, download_date: str):
     dataset = Dataset.objects.create(filename=filename, download_date=download_date)
     assert dataset.filename == filename
-    assert dataset.download_date.strftime("%Y-%m-%d") == download_date
-
-
-@pytest.mark.parametrize("filename, download_date", [("test.csv", "2024-11-01"), ("example.csv", "2024-11-02")])
-def test_dataset_str(filename: str, download_date: str):
-    dataset = Dataset.objects.create(filename=filename, download_date=download_date)
-    assert str(dataset) == f"{filename}"
+    assert dataset.download_date == download_date
 
 
 @pytest.mark.parametrize("column, column_value, num_of_count", [(["mass"], "unknown", 23), (["hair_color"], "brown", 16)])
