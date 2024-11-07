@@ -17,7 +17,6 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -79,10 +78,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-POSTGRES_HOST = env("POSTGRES_HOST")
-POSTGRES_USER = env("POSTGRES_USER")
-POSTGRES_PASSWORD = env("POSTGRES_PASSWORD")
-POSTGRES_DB = env("POSTGRES_DB")
+POSTGRES_HOST = env("POSTGRES_HOST", default="localhost")
+POSTGRES_USER = env("POSTGRES_USER", default="django_user")
+POSTGRES_PASSWORD = env("POSTGRES_PASSWORD", default="django_password")
+POSTGRES_DB = env("POSTGRES_DB", default="django_db")
 POSTGRES_PORT = env("POSTGRES_PORT", default="5432")
 
 DATABASES = {
