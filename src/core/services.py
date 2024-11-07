@@ -1,5 +1,5 @@
-import os
 from datetime import datetime
+from pathlib import Path
 
 import petl
 import requests
@@ -37,15 +37,16 @@ class DataProcessor:
         return table
 
     def get_data_from_csv(self, filename: str) -> tuple[list[dict], list[str]]:
-        filepath = os.path.join("data", filename)
-        if not os.path.exists(filepath):
+        filepath = Path("data") / filename
+        if not filepath.exists():
             raise Http404("File not found.")
-        table = petl.fromcsv(filepath)
+        table = petl.fromcsv(str(filepath))  # Convert Path object to string for petl
         return list(petl.dicts(table)), table.fieldnames
 
     def count_occurrences(self, filepath: str, columns: list[str]) -> list[dict]:
-        if not os.path.exists(filepath):
+        filepath = Path(filepath)
+        if not filepath.exists():
             raise Http404("File not found.")
-        table = petl.fromcsv(filepath)
+        table = petl.fromcsv(str(filepath))  # Convert Path object to string for petl
         counts_table = petl.valuecounts(table, *columns)
         return [{"values": list(row[:-1]), "count": row[-1]} for row in counts_table]
