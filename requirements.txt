@@ -5,3 +5,5 @@ django-environ==0.10.0
 petl==1.7.12
 pytest==8.3.3
 pytest-django==4.9.0
+djangorestframework==3.12
+pytz>=2023.3
