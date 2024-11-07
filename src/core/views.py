@@ -18,7 +18,7 @@ processor = DataProcessor(max_pages=50)
 class DatasetView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         if request.GET.get("fetch") == "true":
-            return self._handle_file_download(request)
+            return self._handle_file_download()
 
         latest_files = Dataset.objects.order_by("-download_date")
         return render(request, "index.html", {"files": latest_files})
